@@ -1,3 +1,7 @@
+// api/photo-report.js
+// POST { spot_id, user_id, photo_base64 }
+// -> upload la photo dans Supabase Storage, lance la détection IA (Claude vision),
+//    crée la ligne photo_reports avec le comptage détecté et son score de confiance.
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -91,7 +95,18 @@ async function detectBoatCount(photoBase64) {
     });
 
     const data = await response.json();
+
+    if (!response.ok) {
+      console.error('detectBoatCount: Anthropic API error', response.status, JSON.stringify(data));
+      return { count: null, confidence: null };
+    }
+
     const text = data.content?.find(b => b.type === 'text')?.text || '';
+    if (!text) {
+      console.error('detectBoatCount: réponse sans texte exploitable', JSON.stringify(data));
+      return { count: null, confidence: null };
+    }
+
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
