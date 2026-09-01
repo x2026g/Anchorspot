@@ -85,9 +85,15 @@ async function detectBoatCount(photoBase64) {
             },
             {
               type: 'text',
-              text: 'Compte le nombre de bateaux au mouillage visibles sur cette photo (ignore les bateaux au port/à quai s\'il y en a). ' +
-                    'Réponds UNIQUEMENT avec un objet JSON, sans aucun texte autour, au format exact: ' +
-                    '{"count": <nombre entier>, "confidence": <valeur entre 0 et 1>}'
+              text: 'Tu comptes des bateaux au mouillage sur une photo prise depuis le rivage ou un quai. Cette scène peut contenir des bateaux à des distances très différentes : certains proches et bien visibles, d\'autres petits et éloignés près de l\'horizon ou en arrière-plan de la baie.\n\n' +
+                    'Procède méthodiquement :\n' +
+                    '1. Scanne d\'abord le premier plan (bateaux proches, bien visibles).\n' +
+                    '2. Scanne ensuite le plan intermédiaire.\n' +
+                    '3. Scanne enfin l\'arrière-plan et les abords de l\'horizon : les bateaux y sont souvent minuscules (quelques pixels), mais comptent quand même s\'ils sont identifiables comme des coques de bateaux à l\'ancre.\n\n' +
+                    'Compte uniquement les bateaux au mouillage (à l\'ancre, flottant librement sur l\'eau). Exclus : les bateaux amarrés à un ponton/quai, les épaves ou coques chavirées/retournées, les bouées et balises seules sans bateau, les kayaks/paddles sans coque de bateau visible.\n\n' +
+                    'Si un objet lointain est ambigu (pourrait être un bateau ou juste un reflet/bouée), inclus-le dans le compte mais reflète cette incertitude dans le score de confiance global plutôt que de l\'exclure silencieusement.\n\n' +
+                    'Réponds UNIQUEMENT avec un objet JSON, sans aucun texte autour, au format exact : ' +
+                    '{"count": <nombre entier total>, "confidence": <valeur entre 0 et 1>, "far_boats_included": <nombre entier de bateaux comptés en arrière-plan/lointain>}'
             }
           ]
         }]
